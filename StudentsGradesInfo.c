@@ -172,16 +172,16 @@ int main() {
     printf("Lowest Total Score: %.2f by %s\n", lowest_total, lowest_total_scorer);
 
     // Display average marks in each subject
-    printf("Average marks in each subject:\n");
+    printf("\nAverage marks in each subject:\n");
     for (int j = 0; j < num_subjects; j++) {
         printf("Subject: %s, Average Marks: %.2f\n", subject_names[j], total_marks_per_subject[j] / num_students);
     }
 
     // Display average total marks
-    printf("Average Total Marks: %.2f\n", total_marks_all_students / num_students);
+    printf("\nAverage Total Marks: %.2f\n", total_marks_all_students / num_students);
 
     // Display the number of students who passed all subjects
-    printf("Number of students who passed all subjects: %d\n", pass_count);
+    printf("\nNumber of students who passed all subjects: %d\n", pass_count);
 
     // Free allocated memory
     for (int i = 0; i < num_students; i++) {
