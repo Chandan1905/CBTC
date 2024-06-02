@@ -7,10 +7,28 @@ typedef struct {
     char **subjects;
     float *marks;
     float total;
+    char **grades;
+    char total_grade[3];
 } Student;
 
+typedef struct {
+    float min;
+    float max;
+    char grade[3];
+} GradeRange;
+
+void assign_grade(float mark, GradeRange *ranges, int num_ranges, char *grade) {
+    for (int i = 0; i < num_ranges; i++) {
+        if (mark >= ranges[i].min && mark <= ranges[i].max) {
+            strcpy(grade, ranges[i].grade);
+            return;
+        }
+    }
+    strcpy(grade, "NA"); // If no range matches
+}
+
 int main() {
-    int num_students, num_subjects;
+    int num_students, num_subjects, num_ranges;
     float pass_marks;
 
     printf("Enter the number of students: ");
@@ -30,20 +48,37 @@ int main() {
         scanf("%s", subject_names[i]);
     }
 
+    printf("Enter the number of grade ranges: ");
+    scanf("%d", &num_ranges);
+
+    GradeRange *ranges = (GradeRange *)malloc(num_ranges * sizeof(GradeRange));
+    for (int i = 0; i < num_ranges; i++) {
+        printf("Enter the minimum marks for grade %d: ", i + 1);
+        scanf("%f", &ranges[i].min);
+        printf("Enter the maximum marks for grade %d: ", i + 1);
+        scanf("%f", &ranges[i].max);
+        printf("Enter the grade for range %.2f - %.2f: ", ranges[i].min, ranges[i].max);
+        scanf("%s", ranges[i].grade);
+    }
+
     for (int i = 0; i < num_students; i++) {
         printf("Enter the name of student %d: ", i + 1);
         scanf("%s", students[i].name);
         students[i].subjects = (char **)malloc(num_subjects * sizeof(char *));
         students[i].marks = (float *)malloc(num_subjects * sizeof(float));
+        students[i].grades = (char **)malloc(num_subjects * sizeof(char *));
         students[i].total = 0;
 
         for (int j = 0; j < num_subjects; j++) {
             students[i].subjects[j] = (char *)malloc(20 * sizeof(char));
             strcpy(students[i].subjects[j], subject_names[j]);
+            students[i].grades[j] = (char *)malloc(3 * sizeof(char));
             printf("Enter the marks for %s: ", students[i].subjects[j]);
             scanf("%f", &students[i].marks[j]);
             students[i].total += students[i].marks[j];
+            assign_grade(students[i].marks[j], ranges, num_ranges, students[i].grades[j]);
         }
+        assign_grade(students[i].total / num_subjects, ranges, num_ranges, students[i].total_grade);
     }
 
     // Initialize variables for highest and lowest marks
@@ -116,9 +151,11 @@ int main() {
         printf("Name: %s\n", students[i].name);
         for (int j = 0; j < num_subjects; j++) {
             printf("Subject: %s\t", students[i].subjects[j]);
-                        printf("Marks: %.2f\n", students[i].marks[j]);
+            printf("Marks: %.2f\t", students[i].marks[j]);
+            printf("Grade: %s\n", students[i].grades[j]);
         }
         printf("Total: %.2f\n", students[i].total);
+        printf("Total Grade: %s\n", students[i].total_grade);
         printf("\n");
     }
 
@@ -135,24 +172,26 @@ int main() {
     printf("Lowest Total Score: %.2f by %s\n", lowest_total, lowest_total_scorer);
 
     // Display average marks in each subject
-    printf("\nAverage marks in each subject:\n");
+    printf("Average marks in each subject:\n");
     for (int j = 0; j < num_subjects; j++) {
         printf("Subject: %s, Average Marks: %.2f\n", subject_names[j], total_marks_per_subject[j] / num_students);
     }
 
     // Display average total marks
-    printf("\nAverage Total Marks: %.2f\n", total_marks_all_students / num_students);
+    printf("Average Total Marks: %.2f\n", total_marks_all_students / num_students);
 
     // Display the number of students who passed all subjects
-    printf("\nNumber of students who passed all subjects: %d\n", pass_count);
+    printf("Number of students who passed all subjects: %d\n", pass_count);
 
     // Free allocated memory
     for (int i = 0; i < num_students; i++) {
         for (int j = 0; j < num_subjects; j++) {
             free(students[i].subjects[j]);
+            free(students[i].grades[j]);
         }
         free(students[i].subjects);
         free(students[i].marks);
+        free(students[i].grades);
     }
     for (int i = 0; i < num_subjects; i++) {
         free(subject_names[i]);
@@ -166,7 +205,7 @@ int main() {
     free(lowest_scorers);
     free(total_marks_per_subject);
     free(students);
+    free(ranges);
 
     return 0;
 }
-
